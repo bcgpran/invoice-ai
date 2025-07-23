@@ -1,0 +1,22 @@
+# DO NOT include azure-functions-worker in this file
+# The Python Worker is managed by Azure Functions platform
+# Manually managing azure-functions-worker may cause unexpected issues
+
+azure-functions
+azure-ai-formrecognizer >=3.3.0 # For Document Intelligence
+azure-storage-blob>=12.13.0 # Or a more recent 12.x version
+pymssql # Or your specific SQL database driver (e.g., psycopg2-binary for PostgreSQL)
+python-dotenv # Good for local loading of .env style config if needed, though Functions use local.settings.json
+openai>=1.12.0 
+sqlalchemy>=1.4
+pandas
+PyMuPDF
+azure-search-documents>=11.4.0
+requests
+flask 
+msal
+azure-identity
+msgraph-sdk
+sib-api-v3-sdk
+fpdf2
+beautifulsoup4
