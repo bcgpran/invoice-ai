@@ -213,26 +213,5 @@ def get_invoice_agent_tools_definition():
                     "required": ["to_emails", "subject", "body", "attachments_json"]
                 }
             }
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "generate_verification_report_pdf_tool",
-                "description": "Generates a downloadable, section-based PDF report. IMPORTANT: This tool CANNOT draw tables. All data must be formatted as text with bullet points.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "verification_data_json": {
-                            "type": "string",
-                            "description": "A JSON string of a list of sections. Each section has a 'section_title' and 'section_content'. To display tabular data, format it as a clear list of bullet points within the 'section_content' string. Use '\\n' for newlines and spaces for indentation. DO NOT use a 'table' field."
-                        },
-                        "invoice_id": {
-                            "type": "string",
-                            "description": "The Invoice ID that was verified, used for the PDF title."
-                        }
-                    },
-                    "required": ["verification_data_json", "invoice_id"]
-                }
-            }
         }
     ]

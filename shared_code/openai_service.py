@@ -415,7 +415,7 @@ The contract document being processed is named: '{original_filename}'.
                 "model": azure_oai_contract_extraction_deployment_name,
                 "messages": [{"role": "system", "content": prompt_for_llm}, {"role": "user", "content": user_message_content}],
                 "temperature": 0.0,
-                "max_tokens": 4000
+                "max_tokens": 8192
             }
             if azure_oai_api_version >= "2023-12-01-preview":
                 try:

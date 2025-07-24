@@ -18,8 +18,7 @@ from shared_code.agent_tool_definitions import get_invoice_agent_tools_definitio
 from shared_code.agent_tool_implementations import (
     execute_sql_query_tool,
     export_sql_query_to_csv_tool,
-    send_email_with_attachments_tool,
-    generate_verification_report_pdf_tool 
+    send_email_with_attachments_tool 
 )
 
 bp = func.Blueprint()
@@ -88,30 +87,18 @@ def invoice_agent_chat(req: func.HttpRequest) -> func.HttpResponse:
 4. **Interpret & Answer:** Use query results to answer the user. For large datasets, use `LIMIT` in your query to show a preview, and then offer the full file using `export_sql_query_to_csv_tool`. When providing a download link, use the format: `[filename_from_tool](csv_url_from_tool)`.
 5. **Generating File**- Unless the user directly asks for file, you need to show them data sample first and then ask them if they need the file
 
+**For Duplication Checks** - When the user asks to find duplicate invoices, your goal is to identify records that share the same InvoiceID. To do this, you must write a query that groups records only by the InvoiceID column and counts them to find any with a count greater than one. Do not include other columns like VendorName in the GROUP BY clause for this specific task, as different vendors might coincidentally use the same invoice number you can search for them later on.
+**search fails** if for any field you search fails, or there are no items found, try to get all distinct elements from that field to find out what user meant, and if the values are similar use them
+
 **Invoice-Verification Recipe:**
 - **Fetch invoice** by InvoiceID or SourceJsonFileName.
 - **Check duplicates** of InvoiceID or SourceJsonFileName.
-- **Pull related PO** from `MasterPOData` via PurchaseOrder.
+- **Pull related PO** from `MasterPOData` via PurchaseOrder OR VIA VendorName BOTH WILL WORK.
 - **Compare line items:** quantity, unit price, and amounts.
-- **Locate and validate contract** in `Contracts` table.
+- **Locate and validate contract** in `Contracts` table, find a suitable contract buy searching for similar SupplierName.
 - **Assess penalties** and check tax clauses.
-- **Generate & Offer PDF Report:** This is a two-step process:
+- **Generate Report:** This is a two-step process:
     1.  **Display in Chat:** First, present a summary of your findings directly to the user. **For any tabular data, you MUST display it as a Markdown table in your chat response.** This is for the user's immediate review.
-    2.  **Offer and Format for PDF:** After displaying the Markdown tables, ask the user if they want a formal PDF report. If they agree, you must call the `generate_verification_report_pdf_tool`. For this tool call, you will **re-format the data from your tables into the required bullet-point structure.** The PDF tool CANNOT handle tables.
-    
-    **General Example of the FINAL JSON format required by the PDF tool:**
-    ```json
-    [
-      {
-        "section_title": "Data Field Validation",
-        "section_content": "Summary:\\nOne data field was found to be inconsistent with the master records.\\n\\nEvidence:\\n- Field 'VendorID': MISMATCH\\n  - Value in Invoice: 'VEN-9001'\\n  - Value in Master Data: 'VEN-9001-US'\\n\\nRecommendation:\\nUpdate the invoice record with the correct VendorID 'VEN-9001-US' before submitting for payment."
-      },
-      {
-        "section_title": "Financial Calculation Verification",
-        "section_content": "Summary:\\nAll financial calculations on the invoice are correct and match the PO.\\n\\nEvidence:\\n- Subtotal: 1,500.00 USD\\n- Tax (8%): 120.00 USD\\n- Total Amount: 1,620.00 USD\\n\\nRecommendation:\\nNo action needed. The amounts are verified."
-      }
-    ]
-    ```
 **--- Email Workflow ---**
 
 **Available Email Signal Tool:**
@@ -165,8 +152,7 @@ def invoice_agent_chat(req: func.HttpRequest) -> func.HttpResponse:
     available_tool_functions = {
         "execute_sql_query_tool": execute_sql_query_tool,
         "export_sql_query_to_csv_tool": export_sql_query_to_csv_tool,
-        "send_email_with_attachments_tool": send_email_with_attachments_tool,
-        "generate_verification_report_pdf_tool": generate_verification_report_pdf_tool
+        "send_email_with_attachments_tool": send_email_with_attachments_tool
     }
 
     # -------- LLM <-> tool loop --------
